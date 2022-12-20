@@ -1,0 +1,170 @@
+---
+title: "FinalProjectCode"
+author: "Michael Surface"
+date: "11/7/2022"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+require(e1071)
+goalsfor <- read.csv("GoalsForRESDATA2.csv")
+str (goalsfor)
+
+normalize <- function(x) {
+  return((x - min(x)) / (max(x) - min(x)))
+}
+
+# SVM Linear
+# .9913
+
+goalsfor_norm <- as.data.frame(lapply(goalsfor, normalize))
+
+goalsfor_train <- goalsfor_norm[2:71,]
+goalsfor_test <- goalsfor_norm[72:101,]
+goalsfor_predict <- goalsfor_norm[102:122,]
+
+svmbestmodel <- svm(goalsfor_train$GF90~ ., data= goalsfor_train, kernel='linear', gamma=10)
+summary(svmbestmodel)
+
+predict_train = predict(svmbestmodel, newdata = goalsfor_train)
+predict_train
+pred_vs_obs_train <- as.data.frame(cbind(goalsfor_train$GF90, predict_train))
+cor(pred_vs_obs_train)
+summary(pred_vs_obs_train)
+
+
+svmbestmodel_test <- svm(goalsfor_test$GF90~ ., data= goalsfor_test, kernel='linear', gamma=10)
+summary(svmbestmodel_test)
+
+predict_test = predict(svmbestmodel_test, newdata = goalsfor_test)
+predict_test
+pred_vs_obs_test <- as.data.frame(cbind(goalsfor_test$GF90, predict_test))
+cor(pred_vs_obs_test)
+summary(pred_vs_obs_test)
+
+pred_train <- as.data.frame(pred_vs_obs_train)
+pred_train_obs_pre <- as.data.frame(cbind(pred_train, goalsfor_train$GF90))
+colnames(pred_train_obs_pre) <- c("predicted_training", "observed_training")
+#write.csv(pred_train_obs_pre, "observed_predicted_training.csv")
+plot(pred_train_obs_pre$predicted_training, pred_train_obs_pre$observed_training)
+fit <- lm(pred_train_obs_pre$predicted_training ~ pred_train_obs_pre$observed_training)
+plot(fit)
+
+```
+
+```{r}
+# SVM Radial
+# .9616
+goalsfor_normrad <- as.data.frame(lapply(goalsfor, normalize))
+
+goalsfor_trainrad <- goalsfor_normrad[2:71,]
+goalsfor_testrad <- goalsfor_normrad[72:101,]
+goalsfor_predictrad <- goalsfor_normrad[102:122,]
+
+svmbestmodelrad <- svm(goalsfor_trainrad$GF90~ ., data= goalsfor_trainrad, kernel='radial', gamma=10, scale = F)
+summary(svmbestmodelrad)
+
+predict_trainrad = predict(svmbestmodelrad, newdata = goalsfor_trainrad)
+predict_trainrad
+pred_vs_obs_trainrad <- as.data.frame(cbind(goalsfor_trainrad$GF90, predict_trainrad))
+cor(pred_vs_obs_trainrad)
+summary(pred_vs_obs_trainrad)
+
+
+svmbestmodel_testrad <- svm(goalsfor_testrad$GF90~ ., data= goalsfor_testrad, kernel='radial', gamma=10, scale=F)
+summary(svmbestmodel_testrad)
+
+predict_testrad = predict(svmbestmodel_testrad, newdata = goalsfor_testrad)
+predict_testrad
+pred_vs_obs_testrad <- as.data.frame(cbind(goalsfor_testrad$GF90, predict_testrad))
+cor(pred_vs_obs_testrad)
+summary(pred_vs_obs_testrad)
+
+pred_trainrad <- as.data.frame(pred_vs_obs_trainrad)
+pred_train_obs_prerad <- as.data.frame(cbind(pred_trainrad, goalsfor_trainrad$GF90))
+colnames(pred_train_obs_prerad) <- c("predicted_training", "observed_training")
+#write.csv(pred_train_obs_pre, "observed_predicted_training.csv")
+plot(pred_train_obs_prerad$predicted_training, pred_train_obs_prerad$observed_training)
+fit <- lm(pred_train_obs_prerad$predicted_training ~ pred_train_obs_prerad$observed_training)
+plot(fit)
+```
+
+```{r}
+# SVM Sigmoid
+# .9035
+goalsfor_normsig <- as.data.frame(lapply(goalsfor, normalize))
+
+goalsfor_trainsig <- goalsfor_normsig[2:71,]
+goalsfor_testsig <- goalsfor_normsig[72:101,]
+goalsfor_predictsig <- goalsfor_normsig[102:122,]
+
+svmbestmodelsig <- svm(goalsfor_trainsig$GF90~ ., data= goalsfor_trainsig, kernel='sigmoid', epsilon = 1, cost = 1)
+summary(svmbestmodelsig)
+
+predict_trainsig = predict(svmbestmodelsig, newdata = goalsfor_trainsig)
+predict_trainsig
+pred_vs_obs_trainsig <- as.data.frame(cbind(goalsfor_trainsig$GF90, predict_trainsig))
+cor(pred_vs_obs_trainsig)
+summary(pred_vs_obs_trainsig)
+
+
+svmbestmodel_testsig <- svm(goalsfor_testsig$GF90~ ., data= goalsfor_testsig, kernel='sigmoid', epsilon = 1, cost = 1)
+summary(svmbestmodel_testsig)
+
+predict_testsig = predict(svmbestmodel_testsig, newdata = goalsfor_testsig)
+predict_testsig
+pred_vs_obs_testsig <- as.data.frame(cbind(goalsfor_testsig$GF90, predict_testsig))
+cor(pred_vs_obs_testsig)
+summary(pred_vs_obs_testsig)
+
+pred_trainsig <- as.data.frame(pred_vs_obs_trainsig)
+pred_train_obs_presig <- as.data.frame(cbind(pred_trainsig, goalsfor_trainsig$GF90))
+colnames(pred_train_obs_presig) <- c("predicted_training", "observed_training")
+#write.csv(pred_train_obs_pre, "observed_predicted_training.csv")
+plot(pred_train_obs_presig$predicted_training, pred_train_obs_presig$observed_training)
+fit <- lm(pred_train_obs_presig$predicted_training ~ pred_train_obs_presig$observed_training)
+plot(fit)
+```
+
+```{r} 
+# SVM Polynomial
+# .9956
+goalsfor_normpol <- as.data.frame(lapply(goalsfor, normalize))
+
+goalsfor_trainpol <- goalsfor_normpol[2:71,]
+goalsfor_testpol <- goalsfor_normpol[72:101,]
+goalsfor_predictpol <- goalsfor_normpol[102:122,]
+
+svmbestmodelpol <- svm(goalsfor_trainpol$GF90~ ., data= goalsfor_trainpol, kernel='polynomial', gamma = 10)
+summary(svmbestmodelpol)
+
+predict_trainpol = predict(svmbestmodelpol, newdata = goalsfor_trainpol)
+predict_trainpol
+pred_vs_obs_trainpol <- as.data.frame(cbind(goalsfor_trainpol$GF90, predict_trainpol))
+cor(pred_vs_obs_trainpol)
+summary(pred_vs_obs_trainpol)
+
+
+svmbestmodel_testpol <- svm(goalsfor_testpol$GF90~ ., data= goalsfor_testpol, kernel='polynomial', gamma = 10)
+summary(svmbestmodel_testpol)
+
+predict_testpol = predict(svmbestmodel_testpol, newdata = goalsfor_testpol)
+predict_testpol
+pred_vs_obs_testpol <- as.data.frame(cbind(goalsfor_testpol$GF90, predict_testpol))
+cor(pred_vs_obs_testpol)
+summary(pred_vs_obs_testpol)
+
+pred_trainpol <- as.data.frame(pred_vs_obs_trainpol)
+pred_train_obs_prepol <- as.data.frame(cbind(pred_trainpol, goalsfor_trainpol$GF90))
+colnames(pred_train_obs_prepol) <- c("predicted_training", "observed_training")
+#write.csv(pred_train_obs_pre, "observed_predicted_training.csv")
+plot(pred_train_obs_prepol$predicted_training, pred_train_obs_prepol$observed_training)
+fit <- lm(pred_train_obs_prepol$predicted_training ~ pred_train_obs_prepol$observed_training)
+plot(fit)
+```
+
